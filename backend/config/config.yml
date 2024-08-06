@@ -1,0 +1,8 @@
+SERVER:
+  PORT: "8080"
+SESSION:
+  SECRET: "ingesoft_secret"
+GOOGLE:
+  CLIENT_ID: "161589305451-d8f7vqjvjh21dhuo7cqqd5as7vohpmb3.apps.googleusercontent.com"
+  CLIENT_SECRET: "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"
+  CALLBACK_URL: "http://localhost:8080/auth/google/callback"

@@ -1,33 +1,81 @@
 package config
 
 import (
+	"errors"
 	"log"
-	"os"
-	"path/filepath"
 
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 )
 
-func LoadConfig() {
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("Error getting working directory: %s", err)
-	}
-
-	envPath := filepath.Join(pwd, "../.env")
-	log.Printf("Attempting to load .env file from: %s", envPath)
-
-	// Use "../.env" because main.go inside /cmd
-	err = godotenv.Load(envPath)
-	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err)
-	}
+type Config struct {
+	Server     ServerConfig
+	GoogleAuth GoogleAuthConfig
 }
 
-func GetEnv(key string, defaultValue string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		return defaultValue
+type ServerConfig struct {
+	Port string
+}
+
+type GoogleAuthConfig struct {
+	ClientID     string
+	ClientSecret string
+	CallbackURL  string
+}
+
+func GetConfig() *Config {
+	v, err := LoadConfig("config", "yml")
+	if err != nil {
+		log.Fatalf("Error in load config %v", err)
 	}
-	return value
+
+	cfg, err := ParseConfig(v)
+	if err != nil {
+		log.Fatalf("Error in parse config %v", err)
+	}
+	cfg.Server = *loadServerConfig(v)
+	cfg.GoogleAuth = *loadGoogleAuthConfig(v)
+
+	return cfg
+}
+
+func loadServerConfig(v *viper.Viper) *ServerConfig {
+	var servConf ServerConfig
+	servConf.Port = (v.Get("SERVER.PORT")).(string)
+	return &servConf
+}
+
+func loadGoogleAuthConfig(v *viper.Viper) *GoogleAuthConfig {
+	var googleAuthConfig GoogleAuthConfig
+	googleAuthConfig.ClientID = (v.Get("GOOGLE.CLIENT_ID")).(string)
+	googleAuthConfig.ClientSecret = (v.Get("GOOGLE.CLIENT_SECRET")).(string)
+	googleAuthConfig.CallbackURL = (v.Get("GOOGLE.CALLBACK_URL")).(string)
+	return &googleAuthConfig
+}
+
+func ParseConfig(v *viper.Viper) (*Config, error) {
+	var cfg Config
+	err := v.Unmarshal(&cfg)
+	if err != nil {
+		log.Printf("Unable to parse config: %v", err)
+		return nil, err
+	}
+	return &cfg, nil
+}
+
+func LoadConfig(filename string, fileType string) (*viper.Viper, error) {
+	v := viper.New()
+	v.SetConfigType(fileType)
+	v.SetConfigName(filename)
+	v.AddConfigPath("./config")
+	v.AutomaticEnv()
+
+	err := v.ReadInConfig()
+	if err != nil {
+		log.Printf("Unable to read config: %v", err)
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			return nil, errors.New("config file not found")
+		}
+		return nil, err
+	}
+	return v, nil
 }
