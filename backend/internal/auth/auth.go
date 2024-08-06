@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"ingesoft/backend/config"
+
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -15,10 +17,10 @@ const (
 	IsProd = false
 )
 
-func InitAuth(e *echo.Echo) {
-	googleClientID := "161589305451-d8f7vqjvjh21dhuo7cqqd5as7vohpmb3.apps.googleusercontent.com"
-	googleClientSecret := "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"
-	callbackURL := "http://localhost:1323/auth/google/callback"
+func InitAuth(e *echo.Echo, cfg *config.Config) {
+	googleClientID := cfg.GoogleAuth.ClientID
+	googleClientSecret := cfg.GoogleAuth.ClientSecret
+	callbackURL := cfg.GoogleAuth.CallbackURL
 
 	store := sessions.NewCookieStore([]byte(key))
 

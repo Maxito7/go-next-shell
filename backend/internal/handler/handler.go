@@ -1,8 +1,7 @@
-package handlers
+package handler
 
 import (
 	"context"
-	"ingesoft/backend/internal/services"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -13,14 +12,6 @@ func HelloWorld(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, world!")
 }
 
-func GetData(c echo.Context) error {
-	data, err := services.FetchData()
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
-	}
-	return c.JSON(http.StatusOK, data)
-}
-
 func ProviderAuth(c echo.Context) error {
 	/*
 		provider := c.Param("provider")
@@ -28,21 +19,21 @@ func ProviderAuth(c echo.Context) error {
 			return c.String(http.StatusBadRequest, "Provider not specified")
 		}
 
-		q := c.Request().URL.Query()
+			q := c.Request().URL.Query()
 		q.Add("provider", c.Param("provider"))
 		c.Request().URL.RawQuery = q.Encode()
 
-		req := c.Request()
+			req := c.Request()
 		res := c.Response().Writer
-		user, err := gothic.CompleteUserAuth(res, req)
+			user, err := gothic.CompleteUserAuth(res, req)
 		if err != nil {
 			return c.Redirect(http.StatusTemporaryRedirect, "/")
 		}
 		// Hacer algo con el usuario, crear una sesion o algo xd
-		log.Printf("User: %#v", user)
+			log.Printf("User: %#v", user)
 		gothic.BeginAuthHandler(res, req)
 
-		return c.JSON(http.StatusOK, user)
+			return c.JSON(http.StatusOK, user)
 	*/
 
 	ctx := context.WithValue(c.Request().Context(), gothic.ProviderParamKey, c.Param("provider"))

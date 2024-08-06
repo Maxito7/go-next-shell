@@ -41,7 +41,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
 	    const handleLogin = () => {
-			        window.location.href = "http://localhost:1323/auth/google";
+			        window.location.href = "http://localhost:8080/auth/google";
 							    };
 
 	    return (
